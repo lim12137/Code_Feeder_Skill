@@ -8,7 +8,9 @@
 
 > 🙏 **鸣谢**：本项目灵感来源于 [AI_CodeFeeder_by_py](https://github.com/ChaoPhone/AI_CodeFeeder_by_py)，特此感谢原作者的启发。
 
-Code Feeder 是一个强大的工具（也可作为 Claude Code skill），旨在解决与 AI 协作时的痛点：**如何高效地将项目上下文提供给 LLM?** 它能自动化收集代码、生成目录结构、并记录你的意图，让你能直接将生成的 Markdown "喂"给WEB端的AI，**无需重复解释背景**。
+**Code Feeder** 是专为 **Claude Code** 打造的 Skill，它能将你的 CLI Agent 升级为智能上下文收集专家。
+
+旨在解决与 AI 协作时的痛点：**如何高效地将项目上下文提供给 LLM?** 它能自动化收集代码、生成目录结构、并记录你的意图，让你能直接将生成的 Markdown "喂"给 WEB 端的 AI，**无需重复解释背景**。
 
 ---
 
