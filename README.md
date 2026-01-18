@@ -84,18 +84,6 @@ Code Feeder 是一个强大的工具（也可作为 Claude Code skill），旨�
 
 ## 💡 使用方法
 
-你也可以直接作为 Python 工具使用：
-
-```bash
-git clone https://github.com/Ecrypted-Data/Code_Feeder_Skill.git code-feeder
-cd code-feeder
-# 无需安装额外依赖，仅需 Python 3.8+ 标准库
-```
-
----
-
-## 💡 使用方法
-
 ### 在 Claude Code 中
 
 直接与 Agent 对话：
