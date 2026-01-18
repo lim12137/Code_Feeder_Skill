@@ -1,0 +1,125 @@
+{
+  "project_types": {
+    "react": {
+      "name": "React 项目",
+      "detection_files": ["package.json"],
+      "detection_patterns": {
+        "package.json": ["\"react\":", "\"next\":", "\"react-dom\":"]
+      },
+      "priority_extensions": [".jsx", ".tsx", ".js", ".ts", ".css", ".scss"],
+      "ignore_dirs": ["node_modules", ".next", "build", "dist", "coverage"],
+      "core_files": ["package.json", "next.config.js", "vite.config.js", "webpack.config.js"]
+    },
+    "vue": {
+      "name": "Vue 项目",
+      "detection_files": ["package.json"],
+      "detection_patterns": {
+        "package.json": ["\"vue\":", "\"nuxt\":"]
+      },
+      "priority_extensions": [".vue", ".js", ".ts", ".css", ".scss"],
+      "ignore_dirs": ["node_modules", ".nuxt", "dist", "coverage"],
+      "core_files": ["package.json", "nuxt.config.js", "vite.config.js"]
+    },
+    "python": {
+      "name": "Python 项目",
+      "detection_files": ["requirements.txt", "setup.py", "pyproject.toml", "Pipfile"],
+      "detection_patterns": {},
+      "priority_extensions": [".py", ".pyx", ".pyi"],
+      "ignore_dirs": ["venv", "env", ".env", "__pycache__", ".pytest_cache", ".mypy_cache", "build", "dist", ".tox"],
+      "core_files": ["requirements.txt", "setup.py", "pyproject.toml", "main.py", "app.py", "__init__.py"]
+    },
+    "django": {
+      "name": "Django 项目",
+      "detection_files": ["manage.py"],
+      "detection_patterns": {
+        "requirements.txt": ["Django", "django"],
+        "pyproject.toml": ["Django", "django"]
+      },
+      "priority_extensions": [".py", ".html", ".css", ".js"],
+      "ignore_dirs": ["venv", "env", "__pycache__", "staticfiles", "media", "migrations"],
+      "core_files": ["manage.py", "settings.py", "urls.py", "wsgi.py", "asgi.py"]
+    },
+    "fastapi": {
+      "name": "FastAPI 项目",
+      "detection_files": ["requirements.txt", "pyproject.toml"],
+      "detection_patterns": {
+        "requirements.txt": ["fastapi", "uvicorn"],
+        "pyproject.toml": ["fastapi", "uvicorn"]
+      },
+      "priority_extensions": [".py"],
+      "ignore_dirs": ["venv", "env", "__pycache__"],
+      "core_files": ["main.py", "app.py", "requirements.txt"]
+    },
+    "nodejs": {
+      "name": "Node.js 项目",
+      "detection_files": ["package.json"],
+      "detection_patterns": {},
+      "priority_extensions": [".js", ".ts", ".json"],
+      "ignore_dirs": ["node_modules", "dist", "build", "coverage"],
+      "core_files": ["package.json", "index.js", "app.js", "server.js"]
+    },
+    "rust": {
+      "name": "Rust 项目",
+      "detection_files": ["Cargo.toml"],
+      "detection_patterns": {},
+      "priority_extensions": [".rs"],
+      "ignore_dirs": ["target", "build"],
+      "core_files": ["Cargo.toml", "Cargo.lock", "main.rs", "lib.rs"]
+    },
+    "go": {
+      "name": "Go 项目",
+      "detection_files": ["go.mod"],
+      "detection_patterns": {},
+      "priority_extensions": [".go"],
+      "ignore_dirs": ["vendor", "bin"],
+      "core_files": ["go.mod", "go.sum", "main.go"]
+    },
+    "java": {
+      "name": "Java 项目",
+      "detection_files": ["pom.xml", "build.gradle", "build.gradle.kts"],
+      "detection_patterns": {},
+      "priority_extensions": [".java", ".kt"],
+      "ignore_dirs": ["target", "build", ".gradle", "bin", "out"],
+      "core_files": ["pom.xml", "build.gradle", "settings.gradle"]
+    },
+    "csharp": {
+      "name": "C# 项目",
+      "detection_files": [".csproj", ".sln"],
+      "detection_patterns": {},
+      "priority_extensions": [".cs", ".csproj", ".sln"],
+      "ignore_dirs": ["bin", "obj", "packages"],
+      "core_files": ["Program.cs", "Startup.cs"]
+    },
+    "unity": {
+      "name": "Unity 项目",
+      "detection_files": ["ProjectSettings/ProjectVersion.txt"],
+      "detection_patterns": {},
+      "priority_extensions": [".cs", ".shader", ".compute"],
+      "ignore_dirs": ["Library", "Temp", "Logs", "Packages", "obj", "Build"],
+      "core_files": ["ProjectSettings/ProjectSettings.asset"]
+    },
+    "stm32": {
+      "name": "STM32 嵌入式项目",
+      "detection_files": [".ioc", "startup_stm32*.s"],
+      "detection_patterns": {},
+      "priority_extensions": [".c", ".h", ".s"],
+      "ignore_dirs": ["Drivers", "Middlewares", "CMSIS", "MDK-ARM", "EWARM"],
+      "ignore_prefixes": ["stm32f4xx_it", "system_stm32f4xx", "stm32f4xx_hal_conf", "stm32f4xx_hal_msp"],
+      "core_files": ["main.c", "main.h"]
+    }
+  },
+  "detection_priority": [
+    "django",
+    "fastapi",
+    "react",
+    "vue",
+    "unity",
+    "stm32",
+    "rust",
+    "go",
+    "java",
+    "csharp",
+    "python",
+    "nodejs"
+  ]
+}
