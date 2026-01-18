@@ -1,77 +1,72 @@
 ---
 name: code-feeder
-description: 当用户需要收集代码上下文以提供给外部 AI（如重构、分析、修复 Bug）时激活。自动化收集项目代码，记录用户意图，生成 AI 友好的上下文文档。
+description: 当用户需将代码提供给外部 AI（重构/分析/修复）时激活。自动收集代码、记录意图、生成上下文文档。支持增量合并。
 ---
 
 # Code Feeder Skill
 
-作为智能代码收集助手，你的目标是生成包含**用户意图**和**完整代码上下文**的高质量 Markdown 文档，供外部 AI 使用。
+**目标**：生成包含**用户意图**和**关键代码**的高质量 Markdown 文档。
+**脚本路径**：`~/.claude/skills/code-feeder/scripts/` (若不存在则搜索 `code_collector.py`)
 
-## 🧠 核心原则
+## 🧠 核心法则
 
-1.  **意图驱动**：**必须**询问并记录用户收集代码的目的（如"重构登录模块"、"修复内存泄漏"）。这是本文档的核心价值。
-2.  **精英化收集 (Elite Selection)**：你的核心职责是**挑选必要且全面**的代码片段。不要盲目全量导入，而是基于用户意图，筛选出最能反映逻辑全貌的函数、类和配置，以最大化外部 AI 的分析洞察力。
-3.  **闭环反馈**：工具在执行后会立即反馈跳过或失败的文件。你必须针对这些反馈进行二次处理（如片段提取），确保上下文的连贯性。
+1.  **意图第一**：必须询问收集目的（如"重构登录"），并写入文档。
+2.  **精准采集**：根据意图挑选代码。小文件批量导入，大文件提取片段。
+3.  **闭环补全**：工具反馈"跳过"的文件，**必须**用 `--append` 模式提取关键片段补全。
 
-## 🛠️ 脚本位置
+## ⚙️ 模式决策
 
-工具脚本位于 Skill 目录下的 `scripts/` 文件夹中。
-默认路径：`~/.claude/skills/code-feeder/scripts/`
-*注意：如果默认路径不存在，请先搜索 `code_collector.py` 的实际位置。*
+| 模式 | 标志 | 适用场景 | 关键参数 |
+| :--- | :--- | :--- | :--- |
+| **Batch** | `--mode batch` | 小文件/配置文件 | `--files f1 f2` |
+| **Snippets** | `--mode snippets` | 大文件(>500KB)/特定函数 | `--target f1 --ranges [...]` |
+| **Append** | `--append` | 补全漏掉的文件/增量更新 | (配合 Snippets 使用) |
 
-## 📋 工作流程
+## 📋 执行流程
 
-### Step 1: 确认意图与范围 (Critical)
-如果用户未明确提供，请询问：
-- **目的**：为什么要收集代码？
-- **范围**：关注全项目、特定文件夹还是核心逻辑？
+### 1. 确认意图
+若未提供，询问："收集代码的具体目的是什么？关注哪些模块？"
 
-### Step 2: 智能检测
-运行检测脚本，获取项目类型和推荐配置：
+### 2. 检测与规划
 ```bash
 python {script_dir}/detect_project.py "{project_path}"
 ```
+*根据输出忽略无关目录，聚焦核心文件。*
 
-### Step 3: 执行收集与实时反馈
-根据文件数量和大小选择模式。执行后，工具会直接向你反馈处理状态。
-
-#### 🟢 模式 A：批量导入 (Batch)
-*适用于：小型项目、整个模块、核心文件集合*
-1. 使用 `glob` 查找文件。
-2. 过滤掉无需收集的文件（参考检测结果）。
-3. 运行：
+### 3. 执行收集
+**A. 批量模式 (首选)**
 ```bash
 python {script_dir}/code_collector.py "{project_path}" \
-  --mode batch \
-  --files {file_path_1} {file_path_2} ... \
-  --intent "{user_intent}" \
-  --output "{output_filename}.md"
+  --mode batch --files src/main.py config.json ... \
+  --intent "{user_intent}" --output "ctx.md"
 ```
 
-#### 🔵 模式 B：片段提取 (Snippets)
-*适用于：大型单文件、仅需特定函数/类*
-1. 定位目标文件和符号（函数名/类名）。
-2. 运行：
+**B. 片段模式 (针对大文件/特定逻辑)**
+*支持类型: `function`, `class`, `method`, `lines`*
 ```bash
 python {script_dir}/code_collector.py "{project_path}" \
-  --mode snippets \
-  --target "{file_path}" \
-  --ranges '[{{"type": "function", "name": "login"}}, {{"type": "class", "name": "User"}}]' \
-  --intent "{user_intent}" \
-  --output "{output_filename}.md"
+  --mode snippets --target "src/heavy.js" \
+  --ranges '[{{"type":"function","name":"login"}}, {{"type":"lines","start":1,"end":50}}]' \
+  --intent "{user_intent}" --output "ctx.md"
 ```
 
-### Step 4: 处理反馈与“填补空白” (Critical)
-执行脚本后，工具会列出 **"⚠️ 跳过的文件"**（如大文件）或 **"❌ 失败的文件"**（如编码问题）。
-作为专家级 Agent，你必须：
-1.  **分析跳过文件的重要性**：如果 `large_module.py` 被跳过，但它包含核心业务逻辑，你**必须**立即切换到 **模式 B (Snippets)** 提取其中的关键函数。
-2.  **手动补全摘要**：对于无法读取的二进制文件或持续失败的文件，使用 `Read` 尝试手动查看并为外部 AI 写一段功能摘要。
-3.  **确保上下文闭环**：检查是否有被跳过的文件是其他已提取代码的关键依赖。
+### 4. 补全 (Critical)
+检查输出中的 **"⚠️ 跳过的文件"**。若文件重要，**立即**用追加模式提取：
+```bash
+python {script_dir}/code_collector.py "{project_path}" \
+  --mode snippets --target "skipped_file.py" \
+  --ranges '[{{"type":"function","name":"core_logic"}}]' \
+  --output "ctx.md" --append
+```
 
-### Step 5: 交付反馈
-- 确认文档路径。
-- 提醒用户：**"文档已包含您的意图说明，可直接发送给 AI 开始任务。"**
+### 5. 审核与手动修补
+**Read** 生成的文档，检查完整性与正确性：
+- **关键缺失**：若工具无法提取（如复杂正则失效）但代码至关重要，**必须手动 Read 文件内容**，并按文件中同样的格式手动追加到对应区域的位置，并更新相关目录树和统计信息。
+- **结构检查**：确认目录树和统计信息正常。
 
-## ⚠️ 异常处理
-- **文件过大 (>200KB)**：工具会自动跳过。你**必须**检查输出，并主动提议提取其中的关键片段。
-- **二进制文件**：不要尝试读取，仅在文档中记录其存在和用途。
+### 6. 交付
+告知用户文档路径，并确认已包含意图和核心逻辑。
+
+## ⚠️ 异常指南
+- **二进制文件**：仅在文档中注明存在，不可读取。
+- **提取失败**：若函数提取失败，降级使用 `lines` 行号范围提取。
