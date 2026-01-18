@@ -1,424 +1,199 @@
-# Code Feeder Skill
+# Code Feeder Skill 🚀
 
-> 🚀 智能代码收集器 - 自动化工具收集项目代码，记录用户意图，一键生成上下文文档
+![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Claude](https://img.shields.io/badge/Skill-Claude%20Code-purple)
 
-## 📖 简介
+> **智能代码收集器** — 自动化收集项目代码，智能记录用户意图，一键生成 AI 友好的上下文文档。
 
-**Code Feeder** 是一个 Claude Code skill，通过自动化工具智能收集项目代码，**自动记录用户意图**，生成包含完整上下文的 Markdown 文档，让你能直接"喂"给其他 AI 工具（如 ChatGPT、DeepSeek、NotebookLM 等）使用，**无需重复说明背景**。
+Code Feeder 是一个强大的工具（也可作为 Claude Code skill），旨在解决与 AI 协作时的痛点：**如何高效地将项目上下文提供给 LLM?** 它能自动化收集代码、生成目录结构、并记录你的意图，让你能直接将生成的 Markdown "喂"给WEB端的AI，**无需重复解释背景**。
 
-### 核心特性
+---
 
-- 🎯 **用户意图记录** ✨：自动记录收集目的，外部 AI 无需重复理解背景
-- 🚀 **一键批量导入**：小型项目一次性收集所有文件，Agent 工作量减少 80%
-- 🔍 **智能片段提取**：大型项目按函数名/类名/行号精确提取，无需手动操作
-- 🌲 **自动结构图**：智能生成项目目录树，清晰展示代码组织
-- 📊 **自动统计分析**：代码行数、语言占比、核心文件识别
-- ✅ **项目类型检测**：智能识别 React、Vue、Django、Rust 等 12+ 种项目类型
-- ⚡ **零手动操作**：Agent 只需判断和审查，所有收集工作由工具完成
+## 🤔 为什么需要 Code Feeder？
 
-## 🚀 快速开始
+即使你已经拥有 Cursor、GitHub Copilot 或 Claude CLI，此工具依然是**深度开发**的必备补充：
 
-### 安装
+1.  **🧠 更纯粹的代码洞察力**：
+    IDE 和 CLI 中的 AI 往往负载了大量工具（Tools）、MCP 协议和环境上下文。过多的干扰有时会导致模型对代码本身的**注意力分散**。相比之下，将纯净的代码上下文提供给 Web 端 AI，往往能获得更深刻的逻辑分析和架构建议。
 
-此 skill 已创建在：`~/.claude/skills/code-feeder/`
+2.  **🚀 官方 Web 端的性能优势**：
+    实践表明，官方 Web 端（如 ChatGPT Plus, Claude.ai, DeepSeek Web）的模型往往拥有**更强的推理能力**和隐藏的思维链优化，在处理复杂重构或疑难 Bug 时，表现常优于通过 API 调用的后端模型。
 
-### 使用方法
+3.  **💰 显著降低 Token 开销**：
+    与其在 CLI 中消耗昂贵的 API 额度进行反复试错和长对话，不如一键生成精准的上下文文档，利用 Web 端（通常是包月制）的算力进行无限制的深度探讨。
 
-在 Claude Code 中执行：
+---
+
+## ✨ 核心特性
+
+- **🎯 用户意图自动记录**：在收集代码时记录你的目的（如"重构认证模块"），生成文档时自动包含意图说明，外部 AI 一看即懂。
+- **🚀 两种收集模式**：
+  - **批量导入**：适合小型项目，一键打包所有相关文件。
+  - **智能片段提取**：适合大型项目，支持按**函数名**、**类名**或**行号**精准提取，无需手动复制粘贴。
+- **🌲 自动结构可视化**：智能生成项目目录树，清晰展示代码组织结构。
+- **🤖 项目类型检测**：自动识别 React, Django, Rust, Unity 等 12+ 种项目类型，智能应用最佳过滤规则。
+- **📊 自动统计分析**：提供代码行数、语言占比、核心文件识别等统计数据。
+
+---
+
+## 🛠 支持的项目类型
+
+系统会自动检测以下类型并优化采集策略（忽略无关文件，优先核心文件）：
+
+| 前端 | 后端/系统 | 其他 |
+| :--- | :--- | :--- |
+| <img src="https://skillicons.dev/icons?i=react" width="20"/> React / Next.js | <img src="https://skillicons.dev/icons?i=django" width="20"/> Django | <img src="https://skillicons.dev/icons?i=unity" width="20"/> Unity |
+| <img src="https://skillicons.dev/icons?i=vue" width="20"/> Vue / Nuxt | <img src="https://skillicons.dev/icons?i=fastapi" width="20"/> FastAPI | <img src="https://skillicons.dev/icons?i=c" width="20"/> STM32 Embedded |
+| <img src="https://skillicons.dev/icons?i=nodejs" width="20"/> Node.js | <img src="https://skillicons.dev/icons?i=rust" width="20"/> Rust / Go | 🐍 Python (Generic) |
+
+*以及 Java, C#, C++, PHP 等通用支持。*
+
+---
+
+## 🚀 安装说明
+
+### 方法 1：作为 Claude Code Skill (推荐)
+
+如果你使用 Claude Code，可以将此仓库作为 Skill 集成：
 
 ```bash
-/code-feeder
+# 假设你的 skills 目录在 ~/.claude/skills
+cd ~/.claude/skills
+git clone https://github.com/YourUsername/code-feeder.git
 ```
 
-或者：
+### 方法 2：独立使用
+
+你也可以直接作为 Python 工具使用：
 
 ```bash
-使用 code-feeder skill 帮我收集项目代码
-```
-
-### 工作流程
-
-1. **询问用户意图** 🎯：了解收集代码的目的（如"重构模块"、"分析性能"等）
-2. **自动检测项目类型** ✨：智能识别项目技术栈（React、Django、Rust 等）
-3. **Agent 判断策略**：选择批量导入（小项目）或片段提取（大项目）
-4. **工具自动收集** 🚀：一键完成文件读取、结构生成、统计分析
-5. **生成完整文档**：包含代码、目录树、统计信息和**用户意图说明**
-6. **Agent 审查确认**：检查完整性，必要时补充说明
-
-## ✨ v3.0 核心升级
-
-### 🎯 用户意图自动记录（重大改进！）
-
-**痛点解决**：
-- ❌ 旧方式：收集代码后，还要向外部 AI 重复说明"我想做什么"
-- ✅ 新方式：Agent 主动询问目的，自动写入文档，外部 AI 直接理解
-
-**示例**：
-```markdown
-# Project: MyApp
-
-**收集目的**: 需要重构用户认证模块，希望 AI 分析现有代码的安全性和性能瓶颈
-
-## 📁 目录结构
-...
-
-## 🎯 收集目的总结
-
-需要重构用户认证模块，希望 AI 分析现有代码的安全性和性能瓶颈
-
-**提示**：以上代码已根据此目的收集整理，可直接用于相关分析或开发任务。
-```
-
-复制给 ChatGPT 后，它会直接理解："哦，你需要我分析认证模块的安全性和性能"，无需你再解释！
-
----
-
-### 🚀 一键批量导入（Agent 工作量减少 80%）
-
-**旧方式**（v2.0）：
-```
-Agent 需要做：
-1. Glob 查找 50 个文件
-2. 并行 Read 50 个文件（分 5 批）
-3. 手动构建目录树字符串
-4. 手动写入 Markdown
-5. 手动计算统计信息
-
-耗时：~3 分钟
-```
-
-**新方式**（v3.0）：
-```
-Agent 只需做：
-1. Glob 查找文件（判断哪些需要）
-2. 调用工具：
-   python code_collector.py --mode batch --files ...
-
-工具自动完成：
-✅ 读取所有文件
-✅ 生成目录树
-✅ 统计分析
-✅ 写入 Markdown
-
-耗时：~30 秒
+git clone https://github.com/YourUsername/code-feeder.git
+cd code-feeder
+# 无需安装额外依赖，仅需 Python 3.8+ 标准库
 ```
 
 ---
 
-### 🔍 智能片段提取（大型项目的福音）
+## 💡 使用方法
 
-**场景**：项目有 500 个文件，只需要其中 3 个文件的 5 个函数
+### 在 Claude Code 中
 
-**旧方式**：
-```
-1. Read 整个文件（可能几千行）
-2. 手动找到函数位置
-3. 手动截取代码片段
-4. 重复 5 次
-```
+直接与 Agent 对话：
 
-**新方式**：
+> "使用 code-feeder 帮我收集项目代码，我想重构用户登录模块。"
+
+Agent 会自动：
+1. 询问你的具体意图。
+2. 检测项目类型。
+3. 执行收集并生成 `markdown` 文档。
+
+### 命令行手动使用
+
+你也可以直接运行 Python 脚本：
+
+#### 1. 批量导入模式 (Batch)
+适合收集整个模块或小项目。
+
 ```bash
-python code_collector.py --mode snippets \
-  --target src/auth.py \
-  --ranges '[
-    {"type": "function", "name": "login"},
-    {"type": "function", "name": "logout"},
-    {"type": "class", "name": "TokenManager"}
-  ]'
+python scripts/code_collector.py /path/to/project \
+  --mode batch \
+  --files src/main.py src/utils.py \
+  --intent "分析主逻辑流程" \
+  --output context.md
 ```
 
-工具自动：
-- ✅ 定位函数/类定义（支持 Python, JS, Java, C# 等）
-- ✅ 提取完整代码块（包括缩进）
-- ✅ 格式化输出
+#### 2. 片段提取模式 (Snippets)
+适合从大文件中提取特定函数或类。
 
----
-
-### 🌲 自动目录结构图
-
-无需 Agent 手动拼接，工具自动生成：
-
-```text
-MyProject/
-├── src/
-│   ├── main.py
-│   ├── utils.py
-│   └── models/
-│       ├── user.py
-│       └── product.py
-├── tests/
-│   └── test_main.py
-└── README.md
+```bash
+python scripts/code_collector.py /path/to/project \
+  --mode snippets \
+  --target src/auth_service.py \
+  --ranges "[
+    {\"type\": \"function\", \"name\": \"login\"},
+    {\"type\": \"class\", \"name\": \"UserSession\"}
+  ]" \
+  --intent "检查登录安全性" \
+  --output context.md
 ```
 
 ---
 
-## ✨ 功能亮点
+## 🔍 功能详解
 
-### 1. 项目类型自动检测
+### 智能片段提取
+告别手动滚动几千行代码寻找函数。只需告诉工具函数名，它会自动定位并提取完整代码块（包括缩进）。
 
-无需手动配置！系统会自动识别以下项目类型：
-
-| 项目类型 | 检测标识 | 优化内容 |
-|---------|---------|---------|
-| **React/Next.js** | `package.json` 中包含 `react` | 优先 `.jsx/.tsx`，忽略 `.next` |
-| **Vue/Nuxt** | `package.json` 中包含 `vue` | 优先 `.vue`，忽略 `.nuxt` |
-| **Django** | `manage.py` 存在 | 优先 `settings.py`，忽略 `migrations` |
-| **FastAPI** | `requirements.txt` 含 `fastapi` | 优先 `main.py/app.py` |
-| **Rust** | `Cargo.toml` 存在 | 优先 `.rs`，忽略 `target` |
-| **Go** | `go.mod` 存在 | 优先 `.go`，忽略 `vendor` |
-| **Unity** | `ProjectSettings/` 存在 | 忽略 `Library/Temp`，优先 `.cs/.shader` |
-| **STM32** | `.ioc` 文件存在 | 忽略 HAL 生成文件 |
-| 其他 | Python, Node.js, Java, C# 等 | 智能适配 |
-
-**优势**：
-- 🎯 **零配置**：自动适配项目特征
-- 📂 **智能过滤**：减少无关文件干扰
-- ⚡ **性能优化**：优先处理核心文件
-
-### 2. 智能片段提取模式
-
-**支持的提取方式**：
-
-| 提取类型 | 示例 | 适用场景 |
-|---------|------|---------|
-| **按行号** | `{"type": "lines", "start": 100, "end": 200}` | 已知代码位置 |
-| **按函数名** | `{"type": "function", "name": "calculate_total"}` | 提取特定函数 |
-| **按类名** | `{"type": "class", "name": "UserModel"}` | 提取类定义 |
-| **混合提取** | 组合多个提取规则 | 复杂场景 |
-
-**支持的语言**：
+支持语言：
 - Python, JavaScript, TypeScript
 - Java, Kotlin, C#
 - C, C++, Go, Rust
-- 更多语言持续支持中...
+- 更多...
 
----
+### 意图驱动的文档生成
+生成的 Markdown 文档不仅是代码堆砌，更是**任务说明书**。
 
-## ⚙️ 配置说明
-
-配置文件位置：`~/.claude/skills/code-feeder/config.json`
-
-大多数情况下你**不需要手动修改配置**，系统会自动检测项目类型并优化。
-
-### 默认包含的文件类型
-
-```json
-[".py", ".java", ".cpp", ".c", ".h", ".js", ".ts", ".jsx", ".tsx",
- ".html", ".css", ".sql", ".md", ".yaml", ".json", ".cs", ".go",
- ".rs", ".swift", ".kt", ".php", ".rb", ".sh", ".vue", ".svelte"]
-```
-
-### 默认忽略的目录
-
-```json
-[".git", ".idea", ".vscode", "__pycache__", "node_modules", "venv",
- "build", "dist", "bin", "obj", "Library", "Temp", "Drivers",
- "Middlewares", ".next", "coverage"]
-```
-
-### 自定义配置
-
-你可以编辑 `config.json` 来：
-- 添加/移除文件扩展名
-- 添加/移除忽略目录
-- 设置最大文件大小限制
-- 自定义输出文件名格式
-
-## 📝 输出示例
-
-生成的 Markdown 文档结构（v3.0 新格式）：
-
+**输出示例：**
 ```markdown
-# Project: MyAwesomeApp
-
-**生成时间**: 2026-01-18 15:30:00
-**收集目的**: 分析这个 Django 项目的架构设计，找出可以优化的地方
-**项目类型**: Django 项目
+# Project: MyApp
+**生成时间**: 2026-01-18
+**收集目的**: 重构用户认证模块，分析安全性
 
 ## 📁 目录结构
-
-```text
-MyAwesomeApp/
-    manage.py
-    myapp/
-        settings.py
-        urls.py
-        views.py
-    templates/
-        index.html
-```
-
----
-
-## 🎯 核心文件（优先显示）
-
-### File: manage.py
-
-```py
-#!/usr/bin/env python
-import os
-import sys
 ...
-```
 
----
-
-### File: myapp/settings.py
-
-```py
-INSTALLED_APPS = [
-    'django.contrib.admin',
-    ...
-]
-```
-
----
-
-## 📄 代码文件
-
-### File: myapp/views.py
-
-```py
-from django.shortcuts import render
-
-def index(request):
-    return render(request, 'index.html')
-```
-
----
-
-## 📊 统计信息
-
-- 总文件数：8
-- 总代码行数：约 300 行
-- 主要语言：Python (85%), HTML (15%)
-
----
+## 📄 代码内容
+...
 
 ## 🎯 收集目的总结
-
-分析这个 Django 项目的架构设计，找出可以优化的地方
-
+需要重构用户认证模块，希望 AI 分析现有代码的安全性和性能瓶颈。
 **提示**：以上代码已根据此目的收集整理，可直接用于相关分析或开发任务。
 ```
+*将此文档复制给 ChatGPT，它会立即理解："哦，你需要我分析认证模块的安全性和性能"，无需你再费口舌。*
 
-**关键优势**：复制给外部 AI 时，它会立即理解你的意图！
+---
 
-## 💡 使用场景
+## ⚙️ 配置指南
 
-### 1. 向 AI 寻求帮助（v3.0 增强）
-将生成的文档复制给 ChatGPT/DeepSeek/Claude.ai，**无需再解释背景**：
+配置文件位于 `config.json`。通常无需修改，系统会自动适配。
 
-**旧方式**：
-```
-你：[粘贴代码]
-你：这是我的项目，我想分析性能瓶颈
-AI：好的，我来帮你分析...
-```
+**默认忽略：**
+`.git`, `node_modules`, `venv`, `__pycache__`, `dist`, `build` 等。
 
-**新方式**（文档已包含意图）：
-```
-你：[粘贴包含意图的文档]
-AI：我看到你想分析性能瓶颈，让我检查代码...（直接开始工作）
-```
+**自定义配置：**
+你可以修改 `config.json` 来：
+- 添加自定义忽略目录。
+- 设置最大文件大小限制（默认 500KB）。
+- 定义项目的"核心文件"列表。
 
-### 2. 代码审查
-生成项目快照，方便团队审查或存档
-
-### 3. 文档生成
-作为自动文档的基础材料
-
-### 4. 项目迁移
-快速了解陌生项目的代码结构
-
-## 🎯 高级用法
-
-### 场景 1：小型项目全量收集
-
-```
-用户：使用 code-feeder 收集这个项目的所有代码，我想让 AI 帮我重构
-
-Agent 执行：
-1. 询问确认意图："重构整个项目"
-2. 检测项目类型（如 React）
-3. Glob 查找所有相关文件
-4. 调用工具：
-   python code_collector.py --mode batch \
-     --files [所有文件列表] \
-     --intent "重构整个项目，提升代码质量" \
-     --output MyProject_CodeContext.md
-5. 审查生成的文档
-```
-
-### 场景 2：大型项目精准提取
-
-```
-用户：我只需要用户认证相关的代码
-
-Agent 执行：
-1. 询问意图："分析认证模块的安全性"
-2. Grep 搜索 "auth" "login" 等关键词
-3. 判断需要提取：
-   - src/auth/login.py 的 login 函数
-   - src/auth/token.py 的 TokenManager 类
-   - src/middleware/auth.py 的 100-150 行
-4. 调用工具：
-   python code_collector.py --mode snippets \
-     --target src/auth/login.py \
-     --ranges '[{"type":"function","name":"login"}]' \
-     --intent "分析认证模块的安全性"
-5. 审查并补充说明
-```
-
-### 场景 3：特定功能分析
-
-```
-用户：帮我收集支付相关的代码，我要给另一个 AI 分析是否有漏洞
-
-Agent 执行：
-1. 明确意图："安全审计支付模块"
-2. 搜索支付相关文件
-3. 批量导入相关文件
-4. 在文档末尾补充：
-   "注意：重点关注 process_payment 函数的参数验证和 SQL 注入防护"
-```
-
-## 🔧 技术细节
-
-### 核心机制（v3.0）
-
-1. **项目类型检测**：`detect_project.py` 扫描特征文件
-2. **智能代码收集**：`code_collector.py` 提供两种模式
-   - **批量导入模式**：一次性读取多个文件
-   - **片段提取模式**：基于正则匹配提取函数/类
-3. **自动结构生成**：树形算法构建目录结构
-4. **语言检测**：基于文件扩展名识别编程语言
-5. **Markdown 生成**：模板化输出，包含用户意图
-6. **Agent 职责分离**：
-   - Agent：判断策略、审查结果
-   - 工具：执行收集、生成文档
+---
 
 ## 📂 文件结构
 
+```text
+code-feeder/
+├── SKILL.md             # Claude Skill 核心指令与元数据
+├── README.md            # 项目说明文档
+├── config.json          # 默认配置文件
+├── project-types.json   # 项目类型检测规则
+└── scripts/             # 工具脚本目录
+    ├── code_collector.py      # 代码收集核心逻辑
+    └── detect_project.py      # 项目类型检测工具
 ```
-~/.claude/skills/code-feeder/
-├── skill.clj              # Skill 元数据定义
-├── prompt.md              # 核心提示词和工作流程（v3.0 更新）
-├── config.json            # 基础配置文件
-├── project-types.json     # 项目类型检测规则（v2.0）
-├── detect_project.py      # 项目类型检测脚本（v2.0）
-├── code_collector.py      # 智能代码收集工具（v3.0 新增）🚀
-└── README.md              # 本文档
-```
 
-**核心文件说明**：
-- `code_collector.py`：主要工具，提供批量导入和片段提取功能
-- `detect_project.py`：辅助工具，自动识别项目类型
-- `prompt.md`：Agent 工作流程，定义如何使用上述工具
+---
 
+## 🤝 贡献
 
-**Happy Coding!** 🎉
+欢迎提交 Issue 和 Pull Request！
 
-使用此 skill 让代码收集变得智能、高效、便捷！
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 提交 Pull Request
+
+## 📄 许可证
+
+本项目基于 MIT 许可证开源 - 详见 [LICENSE](LICENSE) 文件。

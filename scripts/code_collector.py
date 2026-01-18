@@ -14,6 +14,13 @@ from typing import List, Dict, Tuple, Optional, Set
 from datetime import datetime
 import re
 
+# Windows 编码修复
+if sys.platform == 'win32':
+    if sys.stdout.encoding != 'utf-8':
+        import codecs
+        sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+        sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
+
 
 class CodeCollector:
     """智能代码收集器"""
@@ -485,8 +492,16 @@ def main():
 
     # 加载配置
     config = {}
-    if args.config and os.path.exists(args.config):
-        with open(args.config, 'r', encoding='utf-8') as f:
+    config_path = args.config
+    
+    if not config_path:
+        # 默认尝试从父目录加载 config.json
+        default_config = Path(__file__).parent.parent / "config.json"
+        if default_config.exists():
+            config_path = str(default_config)
+
+    if config_path and os.path.exists(config_path):
+        with open(config_path, 'r', encoding='utf-8') as f:
             config = json.load(f)
 
     # 创建收集器
@@ -507,6 +522,21 @@ def main():
 
         ranges = json.loads(args.ranges)
         data = collector.extract_snippets(args.target, ranges)
+
+    # 命令行实时反馈：检查跳过的文件
+    if 'skipped_files' in data and data['skipped_files']:
+        print("\n" + "=" * 60)
+        print("[警告] 检测到以下文件未能自动收集：")
+        print("=" * 60)
+        for skipped in data['skipped_files']:
+            print(f"\n文件: {skipped['path']}")
+            print(f"原因: {skipped['reason']}")
+            if 'size_kb' in skipped:
+                print(f"文件大小: {skipped['size_kb']:.1f} KB")
+            if 'lines' in skipped and skipped['lines']:
+                print(f"预估行数: 约 {skipped['lines']} 行")
+            print("建议: 使用 --mode snippets 指定函数/类名或行号范围提取")
+        print("=" * 60 + "\n")
 
     # 生成 Markdown
     markdown = collector.generate_markdown(data, args.intent or "")

@@ -18,9 +18,10 @@ class ProjectDetector:
     def __init__(self, config_path: str = None):
         """初始化检测器"""
         if config_path is None:
-            # 默认使用同目录下的 project-types.json
+            # 默认使用父目录下的 project-types.json
             script_dir = Path(__file__).parent
-            config_path = script_dir / "project-types.json"
+            project_root = script_dir.parent
+            config_path = project_root / "project-types.json"
 
         with open(config_path, 'r', encoding='utf-8') as f:
             self.config = json.load(f)
@@ -153,7 +154,8 @@ def main():
 
     # 读取基础配置
     script_dir = Path(__file__).parent
-    base_config_path = script_dir / "config.json"
+    project_root = script_dir.parent
+    base_config_path = project_root / "config.json"
 
     with open(base_config_path, 'r', encoding='utf-8') as f:
         base_config = json.load(f)
