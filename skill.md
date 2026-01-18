@@ -1,6 +1,6 @@
 ---
 name: code-feeder
-description: 智能代码收集器 - 自动化收集项目代码，记录用户意图，生成 AI 友好的上下文文档。
+description: 当用户需要收集代码上下文以提供给外部 AI（如重构、分析、修复 Bug）时激活。自动化收集项目代码，记录用户意图，生成 AI 友好的上下文文档。
 ---
 
 # Code Feeder Skill

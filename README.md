@@ -6,7 +6,9 @@
 
 > **智能代码收集器** — 自动化收集项目代码，智能记录用户意图，一键生成 AI 友好的上下文文档。
 
-Code Feeder 是一个Claude Code skill，旨在解决与 AI 协作时的痛点：**如何高效地将项目上下文提供给 LLM?** 它能自动化收集代码、生成目录结构、并记录你的意图，让你能直接将生成的 Markdown "喂"给WEB端的AI，**无需重复解释背景**。
+> 🙏 **鸣谢**：本项目灵感来源于 [AI_CodeFeeder_by_py](https://github.com/ChaoPhone/AI_CodeFeeder_by_py)，特此感谢原作者的启发。
+
+Code Feeder 是一个强大的工具（也可作为 Claude Code skill），旨在解决与 AI 协作时的痛点：**如何高效地将项目上下文提供给 LLM?** 它能自动化收集代码、生成目录结构、并记录你的意图，让你能直接将生成的 Markdown "喂"给WEB端的AI，**无需重复解释背景**。
 
 ---
 
@@ -53,22 +55,39 @@ Code Feeder 是一个Claude Code skill，旨在解决与 AI 协作时的痛点�
 
 ## 🚀 安装说明
 
-### 方法 1：作为 Claude Code Skill (推荐)
+### 全局安装 (推荐)
 
-如果你使用 Claude Code，可以将此仓库作为 Skill 集成：
+使 Code Feeder 在所有项目中可用：
 
-```bash
-# 假设你的 skills 目录在 ~/.claude/skills
-cd ~/.claude/skills
-git clone https://github.com/YourUsername/code-feeder.git
-```
+1.  进入 Claude Skills 目录：
+    *   **macOS/Linux**: `cd ~/.claude/skills`
+    *   **Windows (PowerShell)**: `cd $env:USERPROFILE\.claude\skills`
+    *   *如果目录不存在，请先创建它。*
 
-### 方法 2：独立使用
+2.  克隆仓库：
+    ```bash
+    git clone https://github.com/Ecrypted-Data/Code_Feeder_Skill.git code-feeder
+    ```
+
+3.  **验证安装**：
+    重启 Claude Code，然后询问：
+    > "What skills do you have available?"
+    
+    如果看到 `code-feeder` 在列表中，说明安装成功！
+
+### 项目级安装
+
+仅在当前项目中使用：
+在项目根目录下创建 `.claude/skills` 文件夹，然后将代码克隆到其中。
+
+---
+
+## 💡 使用方法
 
 你也可以直接作为 Python 工具使用：
 
 ```bash
-git clone https://github.com/YourUsername/code-feeder.git
+git clone https://github.com/Ecrypted-Data/Code_Feeder_Skill.git code-feeder
 cd code-feeder
 # 无需安装额外依赖，仅需 Python 3.8+ 标准库
 ```
@@ -150,7 +169,7 @@ python scripts/code_collector.py /path/to/project \
 需要重构用户认证模块，希望 AI 分析现有代码的安全性和性能瓶颈。
 **提示**：以上代码已根据此目的收集整理，可直接用于相关分析或开发任务。
 ```
-*将此文档复制给 ChatGPT，它会立即理解："哦，你需要我分析认证模块的安全性和性能"，无需你再费口舌。*
+*将此文档发送给 AI，它会立即理解："哦，你需要我分析认证模块的安全性和性能"，无需你再费口舌。*
 
 ---
 
@@ -197,7 +216,3 @@ code-feeder/
 ## 📄 许可证
 
 本项目基于 MIT 许可证开源 - 详见 [LICENSE](LICENSE) 文件。
-
-## 🙏 鸣谢
-
-本项目受 [AI_CodeFeeder_by_py](https://github.com/ChaoPhone/AI_CodeFeeder_by_py) 启发而开发，特此感谢。
