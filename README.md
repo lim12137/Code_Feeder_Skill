@@ -14,6 +14,8 @@
 
 It aims to solve the pain point of collaborating with AI: **How to efficiently provide project context to LLMs?** It automates code collection, generates directory structures, and records your intent, allowing you to "feed" the generated Markdown directly to WEB-based AI, **without repeating background explanations**.
 
+![Code Feeder Intro](assets/introduce1.png)
+
 ---
 
 ## 🤔 Why Code Feeder?
@@ -29,6 +31,8 @@ Even if you already use Cursor, GitHub Copilot, or Claude CLI, this tool is an e
 3.  **💰 Significantly Reduced Token Costs**:
     Instead of consuming expensive API quotas for repeated trial and error in the CLI, generate precise context documentation with one click and leverage the (often flat-rate) Web interface for unlimited deep exploration.
 
+
+![Code Feeder Features](assets/introduce2.png)
 ---
 
 ## ✨ Core Features
