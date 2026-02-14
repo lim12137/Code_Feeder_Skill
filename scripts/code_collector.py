@@ -202,7 +202,8 @@ class CodeCollector:
                     content,
                     name,
                     range_spec["type"],
-                    abs_path.suffix
+                    abs_path.suffix,
+                    skeleton_mode=(self.clean_mode == 'skeleton')
                 )
 
                 if snippet_content:
@@ -276,17 +277,17 @@ class CodeCollector:
             result["structure"] = structure_match.group(1)
 
         # 提取核心文件
-        core_section = re.search(r'## 🎯 核心文件\s*\n(.*?)(?=^## |$)', content, re.MULTILINE | re.DOTALL)
+        core_section = re.search(r'## 🎯 核心文件\s*\n(.*?)(?=^## |\Z)', content, re.MULTILINE | re.DOTALL)
         if core_section:
             result["files"]["core"] = self._parse_file_sections(core_section.group(1))
 
         # 提取普通文件
-        other_section = re.search(r'## 📄 代码文件\s*\n(.*?)(?=^## |$)', content, re.MULTILINE | re.DOTALL)
+        other_section = re.search(r'## 📄 代码文件\s*\n(.*?)(?=^## |\Z)', content, re.MULTILINE | re.DOTALL)
         if other_section:
             result["files"]["other"] = self._parse_file_sections(other_section.group(1))
 
         # 提取代码片段
-        snippet_sections = re.finditer(r'## 📄 代码片段: (.+?)\n(.*?)(?=^## |$)', content, re.MULTILINE | re.DOTALL)
+        snippet_sections = re.finditer(r'## 📄 代码片段: (.+?)\n(.*?)(?=^## |\Z)', content, re.MULTILINE | re.DOTALL)
         for match in snippet_sections:
             file_path = match.group(1)
             snippet_content = match.group(2)
@@ -294,9 +295,33 @@ class CodeCollector:
             result["snippets"].append({"file_path": file_path, "snippets": snippets})
 
         # 提取跳过的文件
-        skipped_section = re.search(r'## ⚠️ 跳过的文件\s*\n(.*?)(?=^## |$)', content, re.MULTILINE | re.DOTALL)
+        skipped_section = re.search(r'## ⚠️ 跳过的文件\s*\n(.*?)(?=^## |\Z)', content, re.MULTILINE | re.DOTALL)
         if skipped_section:
             result["skipped_files"] = self._parse_skipped_files(skipped_section.group(1))
+
+        # 统计信息：从已解析内容回推，保证 append 模式下可正确累计
+        all_files = result["files"]["core"] + result["files"]["other"]
+        snippet_groups = result["snippets"]
+
+        total_lines = 0
+        languages = {}
+
+        for file_info in all_files:
+            total_lines += len(file_info.get("content", "").splitlines())
+            lang = file_info.get("language") or "text"
+            languages[lang] = languages.get(lang, 0) + 1
+
+        for snippet_group in snippet_groups:
+            file_lang = self._detect_language(Path(snippet_group.get("file_path", "unknown")))
+            languages[file_lang] = languages.get(file_lang, 0) + 1
+            for snippet in snippet_group.get("snippets", []):
+                total_lines += len(snippet.get("content", "").splitlines())
+
+        result["stats"] = {
+            "total_files": len(all_files) + len(snippet_groups),
+            "total_lines": total_lines,
+            "languages": languages
+        }
 
         return result
 
@@ -758,7 +783,7 @@ class CodeCollector:
             if element_type in ['function', 'method']:
                 pattern = rf'^\s*(?:template\s*<[^>]*>\s*)?(?:inline\s+)?(?:void|int|string|bool|auto|auto\s+|[\w:]+)\s+{re.escape(name)}\s*\('
             elif element_type == 'class':
-                pattern = rf'^\s*class\s+{re.escape(name)}\s*(?::|\{)'
+                pattern = rf'^\s*class\s+{re.escape(name)}\s*(?::|{{)'
             else:
                 return None, 0
         else:
@@ -780,14 +805,7 @@ class CodeCollector:
                           '.java', '.kt', '.cs', '.cpp', '.c', '.cc', '.cxx', '.h', '.hpp',
                           '.go', '.rs']
 
-        if skeleton_mode and file_ext in brace_languages:
-            # 骨架模式：使用 code_cleaner 的 hollow_out_function_bodies
-            from code_cleaner import hollow_out_function_bodies
-            snippet_lines = lines[start_line:]
-            full_content = "\n".join(snippet_lines)
-            cleaned = hollow_out_function_bodies(full_content)
-            return cleaned, len(cleaned.splitlines())
-        elif file_ext in brace_languages:
+        if file_ext in brace_languages:
             # 对于大括号语言，使用括号匹配
             end_line = self._find_closing_brace(lines, start_line)
         else:
@@ -795,7 +813,14 @@ class CodeCollector:
             end_line = self._find_end_by_indent(lines, start_line)
 
         snippet_lines = lines[start_line:end_line]
-        return "\n".join(snippet_lines), len(snippet_lines)
+        snippet_content = "\n".join(snippet_lines)
+
+        # 骨架模式：对提取后的片段执行骨架清洗（跨语言统一行为）
+        if skeleton_mode and HAS_CODE_CLEANER:
+            cleaned = extract_code_skeleton(snippet_content, file_ext)
+            return cleaned, len(cleaned.splitlines())
+
+        return snippet_content, len(snippet_lines)
 
     def _find_closing_brace(self, lines: List[str], start_line: int) -> int:
         """通过大括号配对找到代码块结束位置（用于 JavaScript/Java/C++ 等）"""

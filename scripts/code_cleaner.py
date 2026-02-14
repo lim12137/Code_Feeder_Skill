@@ -197,31 +197,40 @@ def _extract_python_skeleton(content: str) -> str:
     """提取 Python 代码骨架"""
     lines = content.splitlines()
     result = []
-    in_function = False
-    base_indent = 0
+    skip_body_indent = None
+    pending_decorators = []
 
     for line in lines:
         stripped = line.strip()
+        current_indent = len(line) - len(line.lstrip())
 
-        # 检测函数/类定义
-        if stripped.startswith('def ') or stripped.startswith('class '):
-            result.append(line)
-            in_function = False
+        # 跳过当前函数体内容，直到缩进回退
+        if skip_body_indent is not None:
+            if stripped == "":
+                continue
+            if current_indent > skip_body_indent:
+                continue
+            skip_body_indent = None
+
+        # 收集装饰器，等待后续 def/class
+        if stripped.startswith('@'):
+            pending_decorators.append(line)
             continue
 
-        # 检测函数体开始
-        if in_function:
-            current_indent = len(line) - len(line.lstrip())
-            if current_indent <= base_indent and stripped:
-                in_function = False
-                result.append(line)
-        else:
+        # 检测函数/类定义并保留声明
+        if stripped.startswith('def ') or stripped.startswith('async def ') or stripped.startswith('class '):
+            if pending_decorators:
+                result.extend(pending_decorators)
+                pending_decorators = []
             result.append(line)
 
-        # 设置函数体缩进基准
-        if 'def ' in stripped and '(' in stripped:
-            in_function = True
-            base_indent = len(line) - len(line.lstrip())
+            # 仅跳过函数体；类体继续扫描以保留方法声明
+            if stripped.startswith('def ') or stripped.startswith('async def '):
+                skip_body_indent = current_indent
+            continue
+
+        # 非声明行清空装饰器缓存，避免误绑定
+        pending_decorators = []
 
     return '\n'.join(result)
 
